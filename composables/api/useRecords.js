@@ -15,8 +15,20 @@ export default function () {
     return data;
   }
 
+  async function getRecordsByDates(link_id, dates) {
+    const { data, error } = await supabase
+      .from("records")
+      .select('*, codes!inner(link_id, rel_users_to_organizations!inner(profile_id, profiles!inner(*)))')
+      .gt('created_at', dates.date_start)
+      .lt('created_at', dates.date_end)
+      .eq("codes.rel_users_to_organizations.id", link_id);
+    if (error) throw error;
+    return data;
+  }
+
   return {
     getRecords,
     createRecords,
+    getRecordsByDates,
   };
 }
